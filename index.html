@@ -1,268 +1,29 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>2019313611_김지훈_HW1</title>
-        <style>
-            .chat-container {
-                margin: 10px;
-                background-color: #c3d7eb;
-                border: 5px solid black;
-                border-radius: 10px;
-                padding: 15px;
-                max-width: 500px;
-                flex-direction: column;
-                gap: 100px;
-            }
+        <title>2019313611_김지훈_HW2</title>
+        <link rel="stylesheet" href="style.css" />
 
-            .chat-box {
-                display: flex;
-                flex-direction: column;
-                margin-top: 15px;
-                margin-bottom: 15px;
-            }
-
-            .user-name {
-                margin: 0px 10px;
-                font-size: 17px;
-            }
-
-            .chat {
-                display: flex;
-                justify-content: flex-start;
-                align-items: flex-end;
-            }
-
-            .chat.me {
-                justify-content: flex-end;
-            }
-
-            .message {
-                margin: 5px;
-                padding: 7px;
-                padding-left: 12px;
-                padding-right: 12px;
-                border-radius: 7px;
-                max-width: 70%;
-                font-size: 17px;
-            }
-
-            .message.me {
-                background-color: #fef01b;
-                align-self: flex-start;
-            }
-
-            .message.you {
-                background-color: #ffffff;
-                align-self: flex-start;
-            }
-
-            .image {
-                margin: 5px;
-            }
-
-            .time {
-                font-size: 17px;
-                color: Black;
-                text-align: right;
-                margin: 5px;
-            }
-        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="function.js"></script>
     </head>
 
     <body>
-        <div class="chat-container">
-            <div class="chat-box">
-                <div class="chat me">
-                    <div class="time me">오후 1:09</div>
-                    <div class="message me">
-                        이번 과제는 카카오톡스러운 웹페이지를 만들어봐요
-                    </div>
+        <div class="big-container">
+            <div class="kakaotalk">
+                <div class="container user1"></div>
+                <div class="input">
+                    <textarea class="message-input" id="input1"></textarea>
+                    <button class="send-button" id="btn1">Send</button>
                 </div>
             </div>
 
-            <div class="chat-box">
-                <div class="user-name">left</div>
-                <div class="chat you">
-                    <div class="message you">왜 쓸데없이?</div>
-                    <div class="time you">오후 1:09</div>
+            <div class="kakaotalk">
+                <div class="container user2"></div>
+                <div class="input">
+                    <textarea class="message-input" id="input2"></textarea>
+                    <button class="send-button" id="btn2">Send</button>
                 </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:09</div>
-                <div class="message me">싫으면 과제하지 마세요</div>
-            </div>
-
-            <div class="chat you">
-                <div class="message you">(...하아아ㅏㅏㅏ)</div>
-                <div class="time you">오후 1:11</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:14</div>
-                <div class="message me">
-                    이 페이지를 그대로 만들어 봅시다. 대화랑 시간까지도요
-                </div>
-            </div>
-
-            <div class="chat you">
-                <div class="message you">정말 완전 똑같이 만들어요?</div>
-                <div class="time you">오후 1:14</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:15</div>
-                <div class="message me">
-                    수업 시간에 우리 공대생 여러분들의 미감을 봤기에 큰 기대는
-                    안 합니다
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:15</div>
-                <div class="message me">
-                    조교들 성격처럼 그렇게 깐깐하게 따지지는 않지만
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:15</div>
-                <div class="message me">적당히 마진이랑 패딩 줍시다</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:15</div>
-                <div class="message me">
-                    너무 무성의하게 마진 없으면 감점입니다
-                </div>
-            </div>
-
-            <div class="chat you">
-                <div class="message you">무성의하다니? 구체적으로 뭐죠?</div>
-                <div class="time you">오후 1:15</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:16</div>
-                <div class="message me">
-                    예를 들어 옆에 적힌 '오후 1:16'이 중앙에 위치 해 있거나
-                    말풍선에 딱 붙어 있거나 그러면 감점입니다
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:16</div>
-                <div class="message me">
-                    여러 줄도 잘 나와야 하구요<br />
-                    말풍선 모서리도 둥글어야하죠
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:16</div>
-                <div class="message me">
-                    max-width라는 걸 쓰면 말풍선의 최대 폭도 제한할 수 있어요
-                </div>
-            </div>
-
-            <div class="chat you">
-                <div class="message you">색은요?</div>
-                <div class="time you">오후 1:18</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:16</div>
-                <div class="message me">적당히 비슷하게 하세요</div>
-            </div>
-
-            <div class="chat you">
-                <div class="message you">이것만 하면 돼요?</div>
-                <div class="time you">오후 1:18</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:20</div>
-                <div class="image">
-                    <img
-                        border="0"
-                        src="figure.jpg"
-                        alt="Sunset"
-                        width="302.4"
-                        height="403.2"
-                    />
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:20</div>
-                <div class="message me">
-                    사진도 이렇게 표시해 보도록 해봅시다<br />
-                    아무 사진이나 이 위치에 표시하도록 하세요
-                </div>
-            </div>
-
-            <div class="chat you">
-                <div class="message you">하아아.... 언제까지요?</div>
-                <div class="time you">오후 1:23</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:24</div>
-                <div class="message me">
-                    2주 뒤 10월 25일 수요일 23시 59분까지요
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:24</div>
-                <div class="message me">
-                    마감 이후 제출을 절대 받지 않습니다
-                </div>
-            </div>
-
-            <div class="chat you">
-                <div class="message you">뭘 내야하죠...</div>
-                <div class="time you">오후 1:30</div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:31</div>
-                <div class="message me">
-                    아래의 세개 파일을 압축하여 제출해주세요.<br />
-                    압축파일은<br />
-                    2019313611_김지훈<br />
-                    형식을 지켜 파일명을 적어주세요
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:31</div>
-                <div class="message me">
-                    1. 웹페이지를 캡쳐한 PDF 파일<br />
-                    2. html 파일<br />
-                    3. 첨부한 이미지 파일
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:31</div>
-                <div class="message me">
-                    웹페이지를 캡쳐한 pdf는 여러 페이지로 잘려도 괜찮습니다.
-                    길게 캡쳐가 생각보다 귀찮거든요
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:31</div>
-                <div class="message me">
-                    vscode의 live server로 만드시면 됩니다. 별도의 백엔드 만들
-                    필요 없습니다.
-                </div>
-            </div>
-
-            <div class="chat me">
-                <div class="time me">오후 1:34</div>
-                <div class="message me">그럼 수고하세요^^</div>
             </div>
         </div>
     </body>
