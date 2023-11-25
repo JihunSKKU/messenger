@@ -1,6 +1,6 @@
 import uvicorn
 
-from fastapi import FastAPI, Depends, WebSocket, Request
+from fastapi import Depends, FastAPI, WebSocket, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -28,8 +28,8 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            chat = await websocket.receive_text()
-            await manager.broadcast(chat)
+            data = await websocket.receive_text()
+            await manager.broadcast(f"{data}")
     except Exception as e:
         pass
     finally:
@@ -52,10 +52,11 @@ async def get_data(db: Session = Depends(get_db)):
 
 @app.post("/postchat", response_model=List[ChatRequest])
 async def post_chat(chat_req: ChatRequestCreate, db: Session = Depends(get_db)):
-    # chat_req = ChatRequest(sender=chat_req.sender, message=chat_req.message, time=chat_req.time)
-    return add_chatlist(db, chat_req)
+    result = add_chatlist(db, chat_req)
+    if not result:
+        return None
+    return get_chatlist(db)    
 
 
 if __name__ == "__main__":
-    print("Hello")
     uvicorn.run(app)

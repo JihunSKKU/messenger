@@ -11,4 +11,4 @@ def add_chatlist(db: Session, item: ChatRequest):
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
-    return db.query(ChatList).all()
+    return db_item

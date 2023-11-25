@@ -21,15 +21,13 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections = []
     
-    async def connect(self, websocket: WebSocket, username: str):
+    async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections.append({"websocket": websocket, "username": username})
+        self.active_connections.append(websocket)
     
     async def disconnect(self, websocket: WebSocket):
-        for conn in self.active_connections:
-            if conn["websocket"] == websocket:
-                self.active_connections.remove(conn)
+        self.active_connections.remove(websocket)
 
-    async def broadcast(self, chat: ChatRequest):
-        for conn in self.active_connections:
-            await conn["websocket"].send_text(chat)
+    async def broadcast(self, chat: str):
+        for connection in self.active_connections:
+            await connection.send_text(chat)
