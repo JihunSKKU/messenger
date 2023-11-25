@@ -1,0 +1,140 @@
+/* 메인 container */
+.big-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    width: 500px;
+    height: 900px;
+    align-items: flex-end;
+}
+.user-input,
+.kakaotalk {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* 유저 로그인 container */
+.user-input {
+    margin: 0px 5px;
+    display: flex;
+    flex-direction: row;
+    height: 5%;
+    justify-content: center;
+}
+#username {
+    width: 80%;
+    margin: 5px;
+    padding-left: 5px;
+    font-size: 15px;
+    border-radius: 5px;
+}
+::placeholder {
+    text-align: center;
+    font-size: 20px;
+}
+#user_btn {
+    background-color: #fef01b;
+    width: 75px;
+    color: black;
+    font-size: 15px;
+    border: none;
+    border-radius: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+/* 카카오톡 container */
+.kakaotalk {
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    height: 80%;
+
+    border: 2px solid rgb(200, 200, 200);
+    border-radius: 5px;
+}
+
+.container,
+#input {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* 대화창 display container */
+.container {
+    background-color: #c3d7eb;
+    /* padding: 15px; */
+    height: 85%;
+    overflow: auto;
+}
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgb(109, 109, 109);
+    border: none;
+    border-radius: 3px;
+    min-height: 50px;
+}
+
+.chat-box {
+    display: flex;
+    flex-direction: column;
+    margin: 15px;
+    /* margin: 15px 0px; */
+}
+.user-name {
+    margin: 0px 5px;
+    font-size: 17px;
+}
+.chat {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+}
+.chat.me {
+    justify-content: flex-end;
+}
+
+.message {
+    margin: 5px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    max-width: 65%;
+    font-size: 15px;
+    align-self: flex-start;
+    background-color: #ffffff;
+}
+.message.me {
+    background-color: #fef01b;
+}
+.time {
+    font-size: 15px;
+    color: Black;
+    text-align: right;
+    margin: 5px;
+}
+
+/* 대화창 입력 textarea */
+#input {
+    box-sizing: border-box;
+    height: 15%;
+    font-size: 13px;
+    border: none;
+    padding: 10px;
+    outline: none;
+    resize: none;
+}
+
+/* 대화 입력 button */
+#message_btn {
+    background-color: #fef01b;
+    width: 75px;
+    color: black;
+    font-size: 15px;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 0px 5px;
+    cursor: pointer;
+}
