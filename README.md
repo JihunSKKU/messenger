@@ -1,6 +1,6 @@
-## KakaoTalk-like SKKU talk
+# KakaoTalk-like SKKU talk
 
-### 이전 version 기능들
+## 이전 version 기능들
 
 기존에 제출된 과제 HW1, HW2, HW3의 기능들
 
@@ -22,6 +22,8 @@
     -   로그인이 되어있지 않은 상태에서 메시지를 보내면 alert가 뜹니다.
     -   로그인 후에 메시지를 보내면 상대방에게 실시간으로 메시지가 날라갑니다. (Websocket 사용)
     -   대화창을 나갔다 오더라도 DB에 대화가 저장되어 있어서 데이터가 남아 있습니다. (Sqlite 사용)
+
+## 변경해야할 내용들 (CheckList)
 
 ### Basic Function
 
