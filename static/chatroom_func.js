@@ -59,7 +59,7 @@ function getChat() {
     if (currUsername !== '') {
         $('.container').empty();
         // Fetch all messages from the database and display them
-        $.getJSON('/getchatlist', function (chat) {
+        $.getJSON('/chat', function (chat) {
             chat.forEach((item) => {
                 if (item.chatType == 'message') {
                     var sender = item.sender;
@@ -93,7 +93,7 @@ function sendMessage() {
             };
 
             $.ajax({
-                url: '/postchat',
+                url: '/chat',
                 type: 'post',
                 contentType: 'application/json',
                 dataType: 'json',

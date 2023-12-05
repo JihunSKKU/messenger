@@ -19,7 +19,7 @@ class ChatRequestBase(BaseModel):
     content: str
     time: str
 
-class ChatRequestCreate(ChatRequestBase):
+class ChatRequestAdd(ChatRequestBase):
     pass
 
 class ChatRequest(ChatRequestBase):

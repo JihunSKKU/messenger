@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from models import Base, User, Chat
-from schemas import ChatRequest, ChatRequestCreate, ConnectionManager
+from schemas import ChatRequest, ChatRequestAdd, ConnectionManager
 from crud import db_register_user, db_get_chats, db_add_chats
 from database import SessionLocal, engine
 
@@ -45,22 +45,25 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/")
-async def client(request: Request):
-    return templates.TemplateResponse("chatroom.html", {"request": request})
-
-@app.get("/getchatlist", response_model=List[ChatRequest])
+@app.get("/chat", response_model=List[ChatRequest])
 async def get_data(db: Session = Depends(get_db)):
     return db_get_chats(db)
 
-@app.post("/postchat", response_model=List[ChatRequest])
-async def post_chat(chat_req: ChatRequestCreate, 
+@app.post("/chat", response_model=List[ChatRequest])
+async def post_chat(chat_req: ChatRequestAdd, 
                     db: Session = Depends(get_db)):
     result = db_add_chats(db, chat_req)
     if not result:
         return None
-    return db_get_chats(db)    
+    return db_get_chats(db)  
 
+@app.get("/")
+async def client(request: Request):
+    return templates.TemplateResponse("chatroom.html", {"request": request})  
+
+@app.get("/login")
+async def get_login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request}) 
 
 if __name__ == "__main__":
     uvicorn.run(app)
