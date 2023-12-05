@@ -16,4 +16,8 @@ $(document).ready(function () {
             },
         });
     });
+
+    $('#btn_signup').click(function (event) {
+        window.location = '/signup';
+    });
 });

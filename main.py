@@ -20,23 +20,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-
-manager = ConnectionManager()
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await manager.broadcast(f"{data}")
-    except Exception as e:
-        pass
-    finally:
-        await manager.disconnect(websocket)
 
 def get_db():
     db = SessionLocal()
@@ -44,7 +31,78 @@ def get_db():
         yield db
     finally:
         db.close()
+        
+"""Websocket"""
+websocket_manager = ConnectionManager()
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket_manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await websocket_manager.broadcast(f"{data}")
+    except Exception as e:
+        pass
+    finally:
+        await websocket_manager.disconnect(websocket)
+        
+"""User part"""
+class NotAuthenticatedException(Exception):
+    pass
 
+SECRET = "super-secret-key"
+manager = LoginManager(SECRET, '/login', use_cookie=True,
+                       custom_exception=NotAuthenticatedException)
+
+@app.exception_handler(NotAuthenticatedException)
+def auth_exception_handler(request: Request, exc: NotAuthenticatedException):
+    """
+    Redirect the user to the login page if not logged in
+    """
+    return RedirectResponse(url='/login')
+
+@manager.user_loader() # 이게 있음으로써 Depends(manager)를 할 때마다 user를 구분하게 됨
+def get_user(username: str, db: Session = None):
+    if not db:
+        with SessionLocal() as db:
+            return db.query(User).filter(User.name == username).first()
+    return db.query(User).filter(User.name == username).first()
+
+@app.post('/token')
+def login(response: Response, 
+          data: OAuth2PasswordRequestForm = Depends()):
+    username = data.username
+    password = data.password
+
+    user = get_user(username)
+    if not user:
+        raise InvalidCredentialsException
+    if user.password != password:
+        raise InvalidCredentialsException
+    access_token = manager.create_access_token(
+        data={'sub': username}
+    )
+    manager.set_cookie(response, access_token)
+    return {'access_token': access_token}
+
+@app.post('/register')
+def register_user(response: Response,
+                  data: OAuth2PasswordRequestForm = Depends(),
+                  db: Session = Depends(get_db)):
+    username = data.username
+    password = data.password
+
+    user = db_register_user(db, username, password)
+    if user:
+        access_token = manager.create_access_token(
+            data={'sub': username}
+        )
+        manager.set_cookie(response, access_token)
+        return "User created"
+    else:
+        return "Failed"
+
+"""Chat part"""
 @app.get("/chat", response_model=List[ChatRequest])
 async def get_data(db: Session = Depends(get_db)):
     return db_get_chats(db)
@@ -57,6 +115,7 @@ async def post_chat(chat_req: ChatRequestAdd,
         return None
     return db_get_chats(db)  
 
+"""Website part"""
 @app.get("/")
 async def client(request: Request):
     return templates.TemplateResponse("chatroom.html", {"request": request})  
@@ -64,6 +123,11 @@ async def client(request: Request):
 @app.get("/login")
 async def get_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request}) 
+
+@app.get("/signup")
+async def get_signup(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request}) 
+
 
 if __name__ == "__main__":
     uvicorn.run(app)
