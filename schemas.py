@@ -4,8 +4,9 @@ from typing import Optional
 from datetime import datetime
 
 class ChatRequestBase(BaseModel):
+    chatType: str
     sender: str
-    message: str
+    content: str
     time: str
 
 class ChatRequestCreate(ChatRequestBase):

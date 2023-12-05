@@ -7,7 +7,10 @@ def get_chatlist(db: Session):
     return db.query(ChatList).all()
 
 def add_chatlist(db: Session, item: ChatRequest):
-    db_item = ChatList(sender=item.sender, message=item.message, time=item.time)
+    db_item = ChatList(chatType=item.chatType,
+                       sender=item.sender, 
+                       content=item.content, 
+                       time=item.time)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
