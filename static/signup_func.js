@@ -4,11 +4,11 @@ $(document).ready(function () {
         var password = $('#password').val();
 
         if (username === '') {
-            alert('Please input id!');
+            alert('id를 입력해주세요!');
             return;
         }
         if (password === '') {
-            alert('Please input password!');
+            alert('password를 입력해주세요!');
             return;
         }
 

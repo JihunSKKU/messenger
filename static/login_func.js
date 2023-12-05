@@ -3,6 +3,15 @@ $(document).ready(function () {
         var username = $('#username').val();
         var password = $('#password').val();
 
+        if (username === '') {
+            alert('id를 입력해주세요!');
+            return;
+        }
+        if (password === '') {
+            alert('password를 입력해주세요!');
+            return;
+        }
+
         var data = { username: username, password: password };
         $.ajax({
             url: '/token',
@@ -12,7 +21,9 @@ $(document).ready(function () {
                 window.location = '/';
             },
             error: function (e) {
-                alert('Login Failed!');
+                alert(
+                    '로그인에 실패했습니다. id와 password를 다시 확인해주세요.'
+                );
             },
         });
     });
