@@ -1,5 +1,5 @@
 var currUsername = '';
-// var ws = new WebSocket('ws://localhost:8000/ws');
+var ws = new WebSocket('ws://localhost:8000/ws');
 
 // Function to display my message
 function displayMyMessage(message, time) {
