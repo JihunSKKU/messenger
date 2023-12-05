@@ -47,7 +47,7 @@ def get_db():
 
 @app.get("/")
 async def client(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("chatroom.html", {"request": request})
 
 @app.get("/getchatlist", response_model=List[ChatRequest])
 async def get_data(db: Session = Depends(get_db)):
