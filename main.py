@@ -46,6 +46,7 @@ async def websocket_endpoint(websocket: WebSocket):
     finally:
         await websocket_manager.disconnect(websocket)
         
+        
 """User part"""
 class NotAuthenticatedException(Exception):
     pass
@@ -102,27 +103,40 @@ def register_user(response: Response,
     else:
         return "Failed"
 
+
 """Chat part"""
 @app.get("/chat", response_model=List[ChatRequest])
-async def get_data(db: Session = Depends(get_db)):
-    return db_get_chats(db)
+async def get_data(db: Session = Depends(get_db),
+                   user=Depends(manager)):
+    return db_get_chats(db, user)
 
 @app.post("/chat", response_model=List[ChatRequest])
 async def post_chat(chat_req: ChatRequestAdd, 
-                    db: Session = Depends(get_db)):
-    result = db_add_chats(db, chat_req)
+                    db: Session = Depends(get_db),
+                    user=Depends(manager)):
+    result = db_add_chats(db, user, chat_req)
     if not result:
         return None
-    return db_get_chats(db)  
+    return db_get_chats(db, user)
 
 """Website part"""
 @app.get("/")
-async def client(request: Request):
-    return templates.TemplateResponse("chatroom.html", {"request": request})  
+async def client(request: Request, user=Depends(manager)):
+    return templates.TemplateResponse("chatroom.html", {"request": request, "sender": user.name})
 
 @app.get("/login")
 async def get_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request}) 
+
+@app.get("/friend")
+async def get_friend(request: Request, user=Depends(manager)):
+    return templates.TemplateResponse("friend.html", {"request": request, "sender": user.name}) 
+
+@app.get("/logout")
+def logout(response: Response):
+    response = RedirectResponse("/login", status_code=302)
+    response.delete_cookie(key="access-token")
+    return response
 
 @app.get("/signup")
 async def get_signup(request: Request):

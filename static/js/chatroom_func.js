@@ -1,4 +1,4 @@
-var currUsername = '';
+var receiverName = '';
 var ws = new WebSocket('ws://localhost:8000/ws');
 
 // Function to display my message
@@ -44,35 +44,38 @@ function displayOtherMessage(sender, message, time) {
 }
 
 // Function to display message after distinguish
-function displayMessage(sender, message, time) {
-    if (sender == currUsername) {
+function displayMessage(item) {
+    var sender = item.sender;
+    var receiver = item.receiver;
+    var message = item.content;
+    var time = item.time;
+    if (sender == senderName) {
         displayMyMessage(message, time);
-    } else {
+    } else if (receiver == senderName) {
         displayOtherMessage(sender, message, time);
     }
 }
 
-// Function to get all messages
+// Function to update all chats
+function updateChat(chats) {
+    chats.forEach((item) => {
+        if (item.chatType == 'message') {
+            displayMessage(item);
+        }
+    });
+}
+
+// Function to get all chats
 function getChat() {
-    prevUsername = currUsername;
-    currUsername = $('#username').val().trim();
-    if (currUsername !== '') {
+    tmp = receiverName;
+    receiverName = $('#username').val().trim();
+    if (receiverName !== '') {
         $('.container').empty();
-        // Fetch all messages from the database and display them
-        $.getJSON('/chat', function (chat) {
-            chat.forEach((item) => {
-                if (item.chatType == 'message') {
-                    var sender = item.sender;
-                    var message = item.content;
-                    var time = item.time;
-                    displayMessage(sender, message, time);
-                }
-            });
-        });
+        $.getJSON('/chat', updateChat);
         $('#username').val('');
         $('#input').val('');
     } else {
-        currUsername = prevUsername;
+        receiverName = tmp;
     }
 }
 
@@ -80,14 +83,15 @@ function getChat() {
 function sendMessage() {
     var message = $('#input').val().trim();
     if (message !== '') {
-        if (currUsername !== '') {
+        if (receiverName !== '') {
             var time = new Date().toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
             });
             var item = {
                 chatType: 'message',
-                sender: currUsername,
+                sender: senderName,
+                receiver: receiverName,
                 content: message,
                 time: time,
             };
@@ -109,16 +113,15 @@ function sendMessage() {
 }
 
 $(document).ready(function () {
+    getChat();
+
     ws.onmessage = function (event) {
         try {
-            if (currUsername !== '') {
+            if (receiverName !== '') {
                 var item = JSON.parse(event.data);
                 // console.log(chat);
                 if (item.chatType == 'message') {
-                    var sender = item.sender;
-                    var message = item.content;
-                    var time = item.time;
-                    displayMessage(sender, message, time);
+                    displayMessage(item);
                 }
             }
         } catch (error) {
