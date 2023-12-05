@@ -1,14 +1,19 @@
 import uvicorn
 
-from fastapi import Depends, FastAPI, WebSocket, Request
-from fastapi.responses import FileResponse
+from fastapi import Depends, FastAPI, WebSocket, Request, Response
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import FileResponse, RedirectResponse
+
+from fastapi_login import LoginManager
+from fastapi_login.exceptions import InvalidCredentialsException
+
 from sqlalchemy.orm import Session
 
 from typing import List
 
+from models import Base, User, Chat
 from schemas import ChatRequest, ChatRequestCreate, ConnectionManager
-from crud import get_chatlist, add_chatlist
-from models import Base, ChatList
+from crud import db_register_user, db_get_chats, db_add_chats
 from database import SessionLocal, engine
 
 from fastapi.templating import Jinja2Templates
@@ -17,8 +22,6 @@ from fastapi.staticfiles import StaticFiles
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# html 파일을 서비스할 수 있는 jinja 설정 (/templates 폴더 사용)
 templates = Jinja2Templates(directory="templates")
 
 manager = ConnectionManager()
@@ -48,14 +51,14 @@ async def client(request: Request):
 
 @app.get("/getchatlist", response_model=List[ChatRequest])
 async def get_data(db: Session = Depends(get_db)):
-    return get_chatlist(db)
+    return db_get_chats(db)
 
 @app.post("/postchat", response_model=List[ChatRequest])
 async def post_chat(chat_req: ChatRequestCreate, db: Session = Depends(get_db)):
-    result = add_chatlist(db, chat_req)
+    result = db_add_chats(db, chat_req)
     if not result:
         return None
-    return get_chatlist(db)    
+    return db_get_chats(db)    
 
 
 if __name__ == "__main__":
