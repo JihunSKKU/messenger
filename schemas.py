@@ -13,9 +13,9 @@ class UserSchema(BaseModel):
 
 """Chat class"""
 class ChatRequestBase(BaseModel):
-    chatType: str
-    sender: str
-    receiver: Optional[str]
+    chat_type: str
+    sender_name: str
+    receiver_name: Optional[str]
     content: str
     time: str
 

@@ -22,11 +22,11 @@ function displayMyMessage(message, time) {
 }
 
 // Function to display other user's message
-function displayOtherMessage(sender, message, time) {
+function displayOtherMessage(sender_name, message, time) {
     var chat_get = $(
         "<div class='chat-box'>" +
             "<div class='user-name'>" +
-            sender +
+            sender_name +
             '</div>' +
             "<div class='chat you'>" +
             "<div class='message you'>" +
@@ -45,21 +45,21 @@ function displayOtherMessage(sender, message, time) {
 
 // Function to display message after distinguish
 function displayMessage(item) {
-    var sender = item.sender;
-    var receiver = item.receiver;
+    var sender_name = item.sender_name;
+    var receiver_name = item.receiver_name;
     var message = item.content;
     var time = item.time;
-    if (sender == senderName) {
+    if (sender_name == user_name) {
         displayMyMessage(message, time);
-    } else if (receiver == senderName) {
-        displayOtherMessage(sender, message, time);
+    } else if (receiver_name == user_name) {
+        displayOtherMessage(sender_name, message, time);
     }
 }
 
 // Function to update all chats
 function updateChat(chats) {
     chats.forEach((item) => {
-        if (item.chatType == 'message') {
+        if (item.chat_type == 'message') {
             displayMessage(item);
         }
     });
@@ -89,9 +89,9 @@ function sendMessage() {
                 minute: '2-digit',
             });
             var item = {
-                chatType: 'message',
-                sender: senderName,
-                receiver: receiverName,
+                chat_type: 'message',
+                sender_name: user_name,
+                receiver_name: receiverName,
                 content: message,
                 time: time,
             };
@@ -120,7 +120,7 @@ $(document).ready(function () {
             if (receiverName !== '') {
                 var item = JSON.parse(event.data);
                 // console.log(chat);
-                if (item.chatType == 'message') {
+                if (item.chat_type == 'message') {
                     displayMessage(item);
                 }
             }

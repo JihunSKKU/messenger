@@ -11,10 +11,10 @@ class Chat(Base):
     __tablename__ = "chats"
 
     id = Column(Integer, primary_key=True)
-    chatType = Column(String)   # message인지, image인지, video인지 구별
+    chat_type = Column(String)   # message인지, image인지, video인지 구별
     # sender = Column(String)   # chat를 보낸 user
-    sender = Column(String, ForeignKey("users.name", ondelete="CASCADE"))   # chat를 보낸 user
-    receiver = Column(String)   # chat를 받는 user
+    sender_name = Column(String, ForeignKey("users.name", ondelete="CASCADE"))   # chat를 보낸 user
+    receiver_name = Column(String)   # chat를 받는 user
     # receiver = Column(String, ForeignKey("users.name", ondelete="CASCADE")) # chat를 받는 user
     content = Column(String)    # message 내용 or (image, video)의 위치
     time = Column(String)       # message를 보낸 time

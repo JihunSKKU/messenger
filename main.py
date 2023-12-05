@@ -122,7 +122,7 @@ async def post_chat(chat_req: ChatRequestAdd,
 """Website part"""
 @app.get("/")
 async def client(request: Request, user=Depends(manager)):
-    return templates.TemplateResponse("chatroom.html", {"request": request, "sender": user.name})
+    return templates.TemplateResponse("chatroom.html", {"request": request, "sender_name": user.name})
 
 @app.get("/login")
 async def get_login(request: Request):
@@ -130,7 +130,7 @@ async def get_login(request: Request):
 
 @app.get("/friend")
 async def get_friend(request: Request, user=Depends(manager)):
-    return templates.TemplateResponse("friend.html", {"request": request, "sender": user.name}) 
+    return templates.TemplateResponse("friend.html", {"request": request, "sender_name": user.name}) 
 
 @app.get("/logout")
 def logout(response: Response):
