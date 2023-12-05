@@ -54,7 +54,8 @@ async def get_data(db: Session = Depends(get_db)):
     return db_get_chats(db)
 
 @app.post("/postchat", response_model=List[ChatRequest])
-async def post_chat(chat_req: ChatRequestCreate, db: Session = Depends(get_db)):
+async def post_chat(chat_req: ChatRequestCreate, 
+                    db: Session = Depends(get_db)):
     result = db_add_chats(db, chat_req)
     if not result:
         return None
