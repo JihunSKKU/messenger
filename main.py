@@ -15,7 +15,7 @@ from typing import List
 
 from models import Base, User, Chat, ChatRoom
 from schemas import UserSchema, ChatRoomSchema, ChatRequest, ChatRequestAdd, ConnectionManager, FriendRequestAdd
-from crud import db_register_user, db_add_friend, db_create_chatroom, db_get_chatrooms, db_get_chats, db_add_chat
+from crud import db_register_user, db_add_friend, db_create_chatroom, db_get_chatrooms, db_get_chats, db_add_chat, db_get_or_create_chatroom
 from database import SessionLocal, engine
 
 
@@ -137,18 +137,30 @@ async def add_friend(friend_req: FriendRequestAdd,
     return db_add_friend(db, user.user_id, friend)
 
 
-"""ChatRoom part"""
+@app.post("/get-or-create-chatroom")
+async def get_or_create_chatroom(request: Request, 
+                                 db: Session = Depends(get_db),
+                                 user: UserSchema = Depends(manager)):
+    data = await request.json()
+    friend_username = data['friendUsername']
+    friend = db.query(User).filter(User.username == friend_username).first()
+    if not friend:
+        raise HTTPException(status_code=400, detail="해당 유저를 찾을 수 없습니다.")
+
+    chatroom = db_get_or_create_chatroom(db, user.user_id, friend.user_id)
+    return {"chatroomId": chatroom.room_id}
+
 @app.get("/chatrooms", response_model=List[ChatRoomSchema])
 async def get_chatrooms(db: Session = Depends(get_db)):
     chatrooms = db.query(ChatRoom).all()
     return chatrooms
 
-@app.get("/chatrooms/{room_id}/chats", response_model=List[ChatRequest])
+@app.get("/chatroom/{room_id}/chats", response_model=List[ChatRequest])
 async def get_chatroom_chats(room_id: int, db: Session = Depends(get_db)):
     return db_get_chats(db, room_id)
 
-@app.post("/chatrooms/{room_id}/chats", response_model=List[ChatRequest])
-async def post_chatroom_chat(room_id:int, chat_req: ChatRequestAdd,
+@app.post("/chatroom/{room_id}/chats", response_model=List[ChatRequest])
+async def post_chatroom_chat(room_id: int, chat_req: ChatRequestAdd,
                              db: Session = Depends(get_db),
                              user: UserSchema = Depends(manager)):
     result = db_add_chat(db, chat_req, room_id, user)
@@ -171,9 +183,19 @@ async def client(request: Request, user=Depends(manager)):
 async def get_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request}) 
 
-@app.get("/chatroom")
-async def get_friend(request: Request, user=Depends(manager)):
-    return templates.TemplateResponse("chatroom.html", {"request": request, "user_name": user.username}) 
+@app.get("/chatroom/{room_id}")
+async def get_friend(request: Request, 
+                     room_id: int,
+                     db: Session = Depends(get_db),
+                     user=Depends(manager)):
+    chatroom = db.query(ChatRoom).filter(ChatRoom.room_id == room_id).first()
+    if not chatroom:
+        raise HTTPException(status_code=404, detail="Chatroom을 찾을 수 없습니다.")
+    return templates.TemplateResponse("chatroom.html", {
+        "request": request, 
+        "user": user, 
+        "chatroom": chatroom
+    }) 
 
 @app.get("/logout")
 def logout(response: Response):

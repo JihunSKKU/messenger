@@ -2,10 +2,28 @@ function fetchFriends() {
     $.get('/friends', function (data) {
         var friendsHtml = data
             .map(function (friend) {
-                return '<div class="friend-item">' + friend.username + '</div>';
+                return (
+                    '<div class="friend-item" data-username="' +
+                    friend.username +
+                    '">' +
+                    friend.username +
+                    '</div>'
+                );
             })
             .join('');
         $('#friend-list').html(friendsHtml);
+
+        $('.friend-item').click(function () {
+            var friendUsername = $(this).data('username');
+            $.post(
+                '/get-or-create-chatroom',
+                JSON.stringify({ friendUsername: friendUsername }),
+                function (response) {
+                    window.location.href = '/chatroom/' + response.chatroomId;
+                },
+                'json'
+            );
+        });
     });
 }
 

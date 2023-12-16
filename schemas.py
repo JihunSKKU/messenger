@@ -27,6 +27,9 @@ class ChatRoomSchema(BaseModel):
 
 """Chat class"""
 class ChatRequestBase(BaseModel):
+    room_id: Optional[int]
+    sender_id: Optional[int]
+    sender_name: Optional[str]
     chat_type: str
     content: str
     time: str
@@ -36,8 +39,6 @@ class ChatRequestAdd(ChatRequestBase):
 
 class ChatRequest(ChatRequestBase):
     chat_id: Optional[int]
-    room_id: Optional[int]
-    sender_id: Optional[int]
 
     class Config:
         from_attributes = True

@@ -9,17 +9,15 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script>
-            var user_name = '{{ user_name }}';
+            var user_id = '{{ user.user_id }}';
+            var username = '{{ user.username }}';
+            var room_id = '{{ chatroom.room_id }}';
         </script>
         <script src="{{ url_for('static', path='./js/chatroom_func.js') }}"></script>
     </head>
 
     <body>
         <div class="big-container">
-            <div class="user-input">
-                <input type="text" id="username" placeholder="Put User ID" />
-                <button id="user_btn">Enter</button>
-            </div>
             <div class="kakaotalk">
                 <div class="container"></div>
                 <textarea id="input"></textarea>

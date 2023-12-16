@@ -80,6 +80,7 @@ user_chatrooms = Table(
     - chat_id: 특정 chat의 고유 값 (자동으로 부여됨)
     - room_id: chat이 입력된 방의 ID (외래 키)
     - sender_id: chat을 보낸 유저의 ID (외래 키)
+    - sender_name: chat을 보낸 유저의 이름
     - chat_type: 메시지 유형 (text, image, video 등)
     - content: chat 내용 또는 image, video URL
     - time: chat을 보낸 시간
@@ -93,6 +94,7 @@ class Chat(Base):
     chat_id = Column(Integer, primary_key=True)
     room_id = Column(Integer, ForeignKey('chatrooms.room_id', ondelete="CASCADE"))
     sender_id = Column(Integer, ForeignKey('users.user_id', ondelete="CASCADE"))
+    sender_name = Column(String)
     chat_type = Column(String)
     content = Column(String)
     time = Column(String)    
