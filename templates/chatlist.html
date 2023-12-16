@@ -4,14 +4,14 @@
         <title>SKKU talk</title>
         <link
             rel="stylesheet"
-            href="{{ url_for('static', path='./css/friend_style.css') }}"
+            href="{{ url_for('static', path='./css/chatlist_style.css') }}"
         />
 
         <script>
             var user_name = '{{ user_name }}';
         </script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="{{ url_for('static', path='./js/friend_func.js') }}"></script>
+        <script src="{{ url_for('static', path='./js/chatlist_func.js') }}"></script>
     </head>
 
     <body>
@@ -40,30 +40,14 @@
             </div>
             <div class="container">
                 <div id="top-menu">
-                    <div class="icon addfriend">
+                    <div class="icon groupchat">
                         <img
-                            src="{{ url_for('static', path='./image/add_friend.png') }}"
-                            alt="Add friend"
+                            src="{{ url_for('static', path='./image/group_chat.png') }}"
+                            alt="Group chatting"
                         />
                     </div>
                 </div>
-                <div id="friend-list"></div>
-            </div>
-
-            <!-- 팝업창 -->
-            <div id="addFriendPopup" class="popup">
-                <div class="popup-content">
-                    <span class="close-btn" onclick="closeAddFriendPopup()"
-                        >&times;</span
-                    >
-                    <h2>친구 추가</h2>
-                    <input
-                        type="text"
-                        placeholder="친구의 이름을 입력하세요"
-                        id="newFriendName"
-                    />
-                    <button onclick="addFriend()">추가하기</button>
-                </div>
+                <div id="chat-list"></div>
             </div>
         </div>
     </body>

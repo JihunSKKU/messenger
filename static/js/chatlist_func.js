@@ -5,7 +5,7 @@ function fetchFriends() {
                 return '<div class="friend-item">' + friend.username + '</div>';
             })
             .join('');
-        $('#friend-list').html(friendsHtml);
+        $('#chat-list').html(friendsHtml);
     });
 }
 
@@ -43,11 +43,11 @@ function addFriend() {
 $(document).ready(function () {
     fetchFriends();
 
-    $('.icon.chat').click(function () {
-        window.location = '/chatlist';
+    $('.icon.friend').click(function () {
+        window.location = '/';
     });
 
-    $('.icon.addfriend').click(function () {
-        openAddFriendPopup();
-    });
+    // $('.icon.groupchat').click(function () {
+    //     openAddFriendPopup();
+    // });
 });

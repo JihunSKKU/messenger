@@ -1,21 +1,33 @@
+import json
 from fastapi import WebSocket
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
-"""User class"""
+"""User class"""  
 class UserSchema(BaseModel):
-    name: str
+    user_id: Optional[int]
+    username: str
     password: str
 
+    class Config:
+        from_attributes = True
+
+class FriendRequestAdd(BaseModel):
+    username: str
+
+"""ChatRoom class"""
+class ChatRoomSchema(BaseModel):
+    room_id: Optional[int]
+    room_name: Optional[str]
+    users: List[UserSchema]
+    
     class Config:
         from_attributes = True
 
 """Chat class"""
 class ChatRequestBase(BaseModel):
     chat_type: str
-    sender_name: str
-    receiver_name: Optional[str]
     content: str
     time: str
 
@@ -23,7 +35,9 @@ class ChatRequestAdd(ChatRequestBase):
     pass
 
 class ChatRequest(ChatRequestBase):
-    id: Optional[int]
+    chat_id: Optional[int]
+    room_id: Optional[int]
+    sender_id: Optional[int]
 
     class Config:
         from_attributes = True
@@ -31,15 +45,19 @@ class ChatRequest(ChatRequestBase):
 """Websocket class"""
 class ConnectionManager:
     def __init__(self):
-        self.active_connections = []
+        self.active_connections = {}
     
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, room_id: int):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        if room_id not in self.active_connections:
+            self.active_connections[room_id] = []
+        self.active_connections[room_id].append(websocket)
     
-    async def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    async def disconnect(self, websocket: WebSocket, room_id: int):
+        if room_id in self.active_connections:
+            self.active_connections[room_id].remove(websocket)
 
-    async def broadcast(self, item: str):
-        for connection in self.active_connections:
-            await connection.send_text(item)
+    async def broadcast(self, room_id:int, chat: str):
+        if room_id in self.active_connections:  
+            for connection in self.active_connections[room_id]:
+                await connection.send_text(chat)

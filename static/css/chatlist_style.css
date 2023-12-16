@@ -61,12 +61,12 @@
     height: 55px;
     border-bottom: 2px solid rgb(202, 202, 202);
 }
-.icon.addfriend {
+.icon.groupchat {
     height: 40px;
     width: 40px;
     margin-right: 10px;
 }
-#friend-list {
+#chat-list {
     overflow: auto;
 }
 ::-webkit-scrollbar {

@@ -1,8 +1,10 @@
 import uvicorn
 
-from fastapi import Depends, FastAPI, WebSocket, Request, Response
+from fastapi import Depends, FastAPI, WebSocket, Request, Response, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from fastapi_login import LoginManager
 from fastapi_login.exceptions import InvalidCredentialsException
@@ -11,19 +13,17 @@ from sqlalchemy.orm import Session
 
 from typing import List
 
-from models import Base, User, Chat
-from schemas import ChatRequest, ChatRequestAdd, ConnectionManager
-from crud import db_register_user, db_get_chats, db_add_chats
+from models import Base, User, Chat, ChatRoom
+from schemas import UserSchema, ChatRoomSchema, ChatRequest, ChatRequestAdd, ConnectionManager, FriendRequestAdd
+from crud import db_register_user, db_add_friend, db_create_chatroom, db_get_chatrooms, db_get_chats, db_add_chat
 from database import SessionLocal, engine
 
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()
@@ -32,21 +32,22 @@ def get_db():
     finally:
         db.close()
         
-"""Websocket"""
+"""Websocket part"""
 websocket_manager = ConnectionManager()
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket_manager.connect(websocket)
+
+@app.websocket("/ws/{room_id}")
+async def websocket_endpoint(websocket: WebSocket, room_id: int):
+    await websocket_manager.connect(websocket, room_id)
     try:
         while True:
-            data = await websocket.receive_text()
-            await websocket_manager.broadcast(f"{data}")
+            data = await websocket.receive_text()           
+            await websocket_manager.broadcast(room_id, f"{data}")
     except Exception as e:
+        print(f"WebSocket Error: {e}")
         pass
     finally:
-        await websocket_manager.disconnect(websocket)
-        
-        
+        await websocket_manager.disconnect(websocket, room_id)
+               
 """User part"""
 class NotAuthenticatedException(Exception):
     pass
@@ -62,12 +63,12 @@ def auth_exception_handler(request: Request, exc: NotAuthenticatedException):
     """
     return RedirectResponse(url='/login')
 
-@manager.user_loader() # 이게 있음으로써 Depends(manager)를 할 때마다 user를 구분하게 됨
+@manager.user_loader()
 def get_user(username: str, db: Session = None):
     if not db:
         with SessionLocal() as db:
-            return db.query(User).filter(User.name == username).first()
-    return db.query(User).filter(User.name == username).first()
+            return db.query(User).filter(User.username == username).first()
+    return db.query(User).filter(User.username == username).first()
 
 @app.post('/token')
 def login(response: Response, 
@@ -103,34 +104,76 @@ def register_user(response: Response,
     else:
         return "Failed"
 
+"""Add friend part"""
+@app.get("/friends")
+async def get_friends(db: Session = Depends(get_db), user: UserSchema = Depends(manager)):
+    try:
+        current_user = db.query(User).filter(User.username == user.username).first()
+        if not current_user:
+            raise InvalidCredentialsException
+        
+        friends_list = []
+        for friend in current_user.friends:
+            friend_info = {
+                "user_id": friend.user_id,
+                "username": friend.username
+            }
+            friends_list.append(friend_info)
 
-"""Chat part"""
-@app.get("/chat", response_model=List[ChatRequest])
-async def get_data(db: Session = Depends(get_db),
-                   user=Depends(manager)):
-    return db_get_chats(db, user)
+        return friends_list
+    except Exception as e:
+        raise InvalidCredentialsException
 
-@app.post("/chat", response_model=List[ChatRequest])
-async def post_chat(chat_req: ChatRequestAdd, 
-                    db: Session = Depends(get_db),
-                    user=Depends(manager)):
-    result = db_add_chats(db, user, chat_req)
+@app.post("/add-friend")
+async def add_friend(friend_req: FriendRequestAdd, 
+                     db: Session = Depends(get_db),
+                     user: UserSchema = Depends(manager)):
+    friend = db.query(User).filter(User.username == friend_req.username).first()
+    if not friend:
+        raise HTTPException(status_code=400, detail="해당 유저는 존재하지 않습니다.")
+    if user.user_id == friend.user_id:
+        raise HTTPException(status_code=400, detail="본인은 친구로 추가할 수 없습니다.")
+
+    return db_add_friend(db, user.user_id, friend)
+
+
+"""ChatRoom part"""
+@app.get("/chatrooms", response_model=List[ChatRoomSchema])
+async def get_chatrooms(db: Session = Depends(get_db)):
+    chatrooms = db.query(ChatRoom).all()
+    return chatrooms
+
+@app.get("/chatrooms/{room_id}/chats", response_model=List[ChatRequest])
+async def get_chatroom_chats(room_id: int, db: Session = Depends(get_db)):
+    return db_get_chats(db, room_id)
+
+@app.post("/chatrooms/{room_id}/chats", response_model=List[ChatRequest])
+async def post_chatroom_chat(room_id:int, chat_req: ChatRequestAdd,
+                             db: Session = Depends(get_db),
+                             user: UserSchema = Depends(manager)):
+    result = db_add_chat(db, chat_req, room_id, user)
     if not result:
         return None
-    return db_get_chats(db, user)
+    return db_get_chats(db, room_id)
+
 
 """Website part"""
 @app.get("/")
 async def client(request: Request, user=Depends(manager)):
-    return templates.TemplateResponse("chatroom.html", {"request": request, "sender_name": user.name})
+    return templates.TemplateResponse("friend.html", {"request": request, "user_name": user.username})
+
+@app.get("/chatlist")
+async def client(request: Request, user=Depends(manager)):
+    return templates.TemplateResponse("chatlist.html", {"request": request, "user_name": user.username})
+
 
 @app.get("/login")
 async def get_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request}) 
 
-@app.get("/friend")
+@app.get("/chatroom")
 async def get_friend(request: Request, user=Depends(manager)):
-    return templates.TemplateResponse("friend.html", {"request": request, "sender_name": user.name}) 
+    return templates.TemplateResponse("chatroom.html", {"request": request, "user_name": user.username}) 
 
 @app.get("/logout")
 def logout(response: Response):
