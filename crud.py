@@ -1,10 +1,10 @@
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, case
 from sqlalchemy.orm import Session
 
 from fastapi import HTTPException
 from typing import List
 from models import User, Chat, ChatRoom, user_chatrooms
-from schemas import ChatRequestAdd, ChatRequest, UserSchema
+from schemas import ChatRequestAdd, UserSchema
 
 """User part"""
 def db_register_user(db: Session, username: str, password: str):
@@ -61,22 +61,37 @@ def db_get_chatrooms(db:Session, user: UserSchema):
         func.max(Chat.time).label('max_time')
     ).group_by(Chat.room_id).subquery()
 
-    chatrooms = db.query(ChatRoom, Chat) \
+    # 채팅이 있는 채팅방
+    chatrooms_with_chat = db.query(ChatRoom, Chat) \
         .outerjoin(subquery, ChatRoom.room_id == subquery.c.room_id) \
         .outerjoin(Chat, and_(Chat.room_id == subquery.c.room_id, Chat.time == subquery.c.max_time)) \
-        .filter(ChatRoom.users.any(User.user_id == user.user_id)) \
+        .filter(ChatRoom.users.any(User.user_id == user.user_id), subquery.c.max_time != None) \
         .order_by(subquery.c.max_time.desc()) \
         .all()
 
+    # 채팅이 없는 채팅방
+    chatrooms_without_chat = db.query(ChatRoom) \
+        .filter(ChatRoom.users.any(User.user_id == user.user_id), ~ChatRoom.room_id.in_(db.query(subquery.c.room_id))) \
+        .order_by(ChatRoom.room_id.desc()) \
+        .all()
+
+    # 결과 합치기
     result = []
-    for chatroom, chat in chatrooms:
-        chatroom_data = {
+    for chatroom, chat in chatrooms_with_chat:
+        result.append({
             "room_id": chatroom.room_id,
             "room_name": chatroom.room_name,
             "users": chatroom.users,
             "recent_message": chat.content if chat else "No messages"
-        }
-        result.append(chatroom_data)
+        })
+
+    for chatroom in chatrooms_without_chat:
+        result.append({
+            "room_id": chatroom.room_id,
+            "room_name": chatroom.room_name,
+            "users": chatroom.users,
+            "recent_message": "No messages"
+        })
 
     return result
 
@@ -84,7 +99,7 @@ def db_get_chatrooms(db:Session, user: UserSchema):
 def db_get_chats(db: Session, room_id: int):
     return db.query(Chat).filter(Chat.room_id == room_id).all()
 
-def db_add_chat(db: Session, chat: ChatRequest, room_id: int, sender: User):
+def db_add_chat(db: Session, chat: ChatRequestAdd, room_id: int, sender: User):
     chatroom = db.query(ChatRoom).filter(ChatRoom.room_id == room_id).first()
     if not chatroom:
         return None

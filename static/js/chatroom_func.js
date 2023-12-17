@@ -59,12 +59,20 @@ function displayMessage(item) {
             `<img src='/static/image/${imagePath}'` +
             `onload='updateScroll()'` +
             `alt='Image'` +
-            `style='max-width: 200px;` +
-            `min-width: 100px;` +
-            `max-height: 400px;` +
-            `min-height: 100px;` +
-            `border-radius: 7px;` +
-            `margin: 5px;'>` +
+            `style='max-width: 200px; min-width: 100px; max-height: 400px; min-height: 100px;` +
+            `border-radius: 7px; margin: 5px;'>` +
+            `</a>`;
+    } else if (item.chat_type === 'video') {
+        var videoPath = item.content.replace('./static/video/', '');
+        message =
+            `<a href='/static/video/${videoPath}' target='_blank'>` +
+            `<video controls ` +
+            `onloadedmetadata='updateScroll()'` +
+            `style='max-width: 200px; min-width: 100px; max-height: 400px; min-height: 100px;` +
+            `border-radius: 7px; margin: 5px'>` +
+            `<source src='/static/video/${videoPath}' type='video/mp4'>` +
+            `Your browser does not support the video tag.` +
+            `</video>` +
             `</a>`;
     }
 
@@ -100,6 +108,7 @@ function sendMessage(type, content) {
         time: time,
         room_id: room_id,
     };
+    console.log(time.toISOString);
 
     $.ajax({
         url: '/chatroom/' + room_id + '/chats',
@@ -167,7 +176,11 @@ $(document).ready(function () {
 
     $('.icon.back').click(function () {
         ws.close();
-        window.location = '/chatlist';
+        if (document.referrer.includes('/chatlist')) {
+            window.location = '/chatlist';
+        } else {
+            window.location = '/';
+        }
     });
 
     $('.icon.image').click(function () {
@@ -185,8 +198,6 @@ $(document).ready(function () {
             var formData = new FormData();
             formData.append('file', file);
 
-            console.log(formData);
-
             try {
                 let response = await fetch('/upload/image/', {
                     method: 'POST',
@@ -200,7 +211,23 @@ $(document).ready(function () {
             }
         });
 
-    $('#video_input').change(function (event) {
-        // Handle video upload and send message with video URL
-    });
+    document
+        .getElementById('video_input')
+        .addEventListener('change', async function (event) {
+            var file = event.target.files[0];
+            var formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                let response = await fetch('/upload/video/', {
+                    method: 'POST',
+                    body: formData,
+                });
+                let result = await response.json();
+
+                sendMessage('video', result.filename);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
 });

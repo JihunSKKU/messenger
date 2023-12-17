@@ -61,6 +61,10 @@ function addFriend() {
 $(document).ready(function () {
     fetchFriends();
 
+    $('.icon.friend').click(function () {
+        window.location = '/';
+    });
+
     $('.icon.chat').click(function () {
         window.location = '/chatlist';
     });

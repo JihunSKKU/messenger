@@ -67,4 +67,8 @@ $(document).ready(function () {
     $('.icon.friend').click(function () {
         window.location = '/';
     });
+    
+    $('.icon.chat').click(function () {
+        window.location = '/chatlist';
+    });
 });

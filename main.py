@@ -15,6 +15,7 @@ from fastapi_login.exceptions import InvalidCredentialsException
 from sqlalchemy.orm import Session
 
 from typing import List
+from datetime import datetime, timedelta, timezone
 
 from models import Base, User, Chat, ChatRoom
 from schemas import UserSchema, ChatRoomSchema, ChatRequest, ChatRequestAdd, ConnectionManager, FriendRequestAdd
@@ -115,15 +116,20 @@ async def get_friends(db: Session = Depends(get_db), user: UserSchema = Depends(
         if not current_user:
             raise InvalidCredentialsException
         
-        friends_list = []
-        for friend in current_user.friends:
-            friend_info = {
-                "user_id": friend.user_id,
-                "username": friend.username
-            }
-            friends_list.append(friend_info)
+        # friends_list = []
+        # for friend in current_user.friends:
+        #     friend_info = {
+        #         "user_id": friend.user_id,
+        #         "username": friend.username
+        #     }
+        #     friends_list.append(friend_info)
 
-        return friends_list
+        # return friends_list
+    
+        friends_list = sorted(current_user.friends, key=lambda friend: friend.username)
+                
+        return [{"user_id": friend.user_id, 
+                 "username": friend.username} for friend in friends_list]
     except Exception as e:
         raise InvalidCredentialsException
 
@@ -180,10 +186,12 @@ async def get_friend(request: Request,
 async def get_chatroom_chats(room_id: int, db: Session = Depends(get_db)):
     return db_get_chats(db, room_id)
 
+KST = timezone(timedelta(hours=9))
 @app.post("/chatroom/{room_id}/chats", response_model=List[ChatRequest])
 async def post_chatroom_chat(room_id: int, chat_req: ChatRequestAdd,
                              db: Session = Depends(get_db),
                              user: UserSchema = Depends(manager)):
+    chat_req.time = datetime.now(KST)
     result = db_add_chat(db, chat_req, room_id, user)
     if not result:
         return None
@@ -217,10 +225,28 @@ async def get_signup(request: Request):
 """File upload part"""
 @app.post("/upload/image/")
 async def upload_image(file: UploadFile = File(...)):
+    allowed_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".svg"}
+    ext = Path(file.filename).suffix
+    if ext.lower() not in allowed_extensions:
+        raise HTTPException(status_code=400, detail="Invalid image format")
+    
     file_location = f"./static/image/{file.filename}"
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     return {"filename": file_location}
+
+@app.post("/upload/video/")
+async def upload_video(file: UploadFile = File(...)):
+    allowed_extensions = {".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv"}
+    ext = Path(file.filename).suffix
+    if ext.lower() not in allowed_extensions:
+        raise HTTPException(status_code=400, detail="Invalid video format")
+    
+    file_location = f"./static/video/{file.filename}"
+    with open(file_location, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    return {"filename": file_location}
+
 
 if __name__ == "__main__":
     uvicorn.run(app)

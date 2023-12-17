@@ -30,6 +30,9 @@
 .icon.chat {
     margin-bottom: 620px;
 }
+.icon.logout {
+    margin-bottom: 0px;
+}
 
 .icon:hover {
     background-color: #f0f0f0;
