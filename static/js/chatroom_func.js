@@ -41,6 +41,11 @@ function displayOtherMessage(sender_name, message, time) {
     $('.container').append(chat_get);
 }
 
+// Scroll을 맨 밑으로 내려주는 함수
+function updateScroll() {
+    $('.container').scrollTop($('.container')[0].scrollHeight);
+}
+
 // Function to display message after distinguish
 function displayMessage(item) {
     var sender_name = item.sender_name;
@@ -52,6 +57,7 @@ function displayMessage(item) {
         message =
             `<a href='/static/image/${imagePath}' target='_blank'>` +
             `<img src='/static/image/${imagePath}'` +
+            `onload='updateScroll()'` +
             `alt='Image'` +
             `style='max-width: 200px;` +
             `min-width: 100px;` +
@@ -80,7 +86,7 @@ function displayMessage(item) {
         displayOtherMessage(sender_name, message, time);
     }
 
-    $('.container').scrollTop($('.container')[0].scrollHeight);
+    updateScroll();
 }
 
 // Function to send a message
