@@ -27,8 +27,8 @@
     width: 40px;
     transition: background-color 0.5s;
 }
-.icon.logout {
-    margin-top: 600px;
+.icon.chat {
+    margin-bottom: 620px;
 }
 
 .icon:hover {

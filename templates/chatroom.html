@@ -21,11 +21,23 @@
             <div class="kakaotalk">
                 <div class="container"></div>
                 <textarea id="input"></textarea>
+                <input
+                    type="file"
+                    id="image_input"
+                    accept="image/*"
+                    style="display: none"
+                />
+                <input
+                    type="file"
+                    id="video_input"
+                    accept="video/*"
+                    style="display: none"
+                />
             </div>
             <div class="button-group">
                 <div class="icon back">
                     <img
-                        src="{{ url_for('static', path='./icon/back_icon.png') }}"
+                        src="{{ url_for('static', path='./icon/back_icon.png')}}"
                         alt="Back"
                     />
                 </div>

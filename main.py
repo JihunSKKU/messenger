@@ -1,6 +1,9 @@
 import uvicorn
+import shutil
 
-from fastapi import Depends, FastAPI, WebSocket, Request, Response, HTTPException
+from pathlib import Path
+
+from fastapi import Depends, FastAPI, WebSocket, Request, Response, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -211,6 +214,13 @@ def logout(response: Response):
 async def get_signup(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request}) 
 
+"""File upload part"""
+@app.post("/upload/image/")
+async def upload_image(file: UploadFile = File(...)):
+    file_location = f"./static/image/{file.filename}"
+    with open(file_location, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    return {"filename": file_location}
 
 if __name__ == "__main__":
     uvicorn.run(app)

@@ -11,15 +11,12 @@ function displayMyMessage(message, time) {
                 minute: '2-digit',
             }) +
             '</div>' +
-            "<div class='message me'>" +
-            message.replace(/\n/g, '<br>') +
-            '</div>' +
+            message +
             '</div>' +
             '</div>'
     );
 
     $('.container').append(myChat);
-    $('.container').scrollTop($('.container')[0].scrollHeight);
 }
 
 // Function to display other user's message
@@ -30,9 +27,7 @@ function displayOtherMessage(sender_name, message, time) {
             sender_name +
             '</div>' +
             "<div class='chat you'>" +
-            "<div class='message you'>" +
-            message.replace(/\n/g, '<br>') +
-            '</div>' +
+            message +
             "<div class='time you'>" +
             new Date(time).toLocaleTimeString([], {
                 hour: '2-digit',
@@ -44,7 +39,6 @@ function displayOtherMessage(sender_name, message, time) {
     );
 
     $('.container').append(chat_get);
-    $('.container').scrollTop($('.container')[0].scrollHeight);
 }
 
 // Function to display message after distinguish
@@ -53,42 +47,70 @@ function displayMessage(item) {
     var message = item.content;
     var time = item.time;
 
+    if (item.chat_type === 'image') {
+        var imagePath = item.content.replace('./static/image/', '');
+        message =
+            `<a href='/static/image/${imagePath}' target='_blank'>` +
+            `<img src='/static/image/${imagePath}'` +
+            `alt='Image'` +
+            `style='max-width: 200px;` +
+            `min-width: 100px;` +
+            `max-height: 400px;` +
+            `min-height: 100px;` +
+            `border-radius: 7px;` +
+            `margin: 5px;'>` +
+            `</a>`;
+    }
+
     if (sender_name == username) {
+        if (item.chat_type === 'message') {
+            message =
+                "<div class='message me'>" +
+                item.content.replace(/\n/g, '<br>') +
+                '</div>';
+        }
         displayMyMessage(message, time);
     } else {
+        if (item.chat_type === 'message') {
+            message =
+                "<div class='message you'>" +
+                item.content.replace(/\n/g, '<br>') +
+                '</div>';
+        }
         displayOtherMessage(sender_name, message, time);
     }
+
+    $('.container').scrollTop($('.container')[0].scrollHeight);
 }
 
 // Function to send a message
-function sendMessage() {
-    var message = $('#input').val().trim();
-    if (message !== '') {
-        var time = new Date();
-        var item = {
-            chat_type: 'message',
-            sender_id: user_id,
-            sender_name: username,
-            content: message,
-            time: time,
-            room_id: room_id,
-        };
+function sendMessage(type, content) {
+    var time = new Date();
+    var item = {
+        chat_type: type,
+        sender_id: user_id,
+        sender_name: username,
+        content: content,
+        time: time,
+        room_id: room_id,
+    };
 
-        $.ajax({
-            url: '/chatroom/' + room_id + '/chats',
-            type: 'post',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify(item),
-            success: function () {
-                ws.send(JSON.stringify(item));
+    $.ajax({
+        url: '/chatroom/' + room_id + '/chats',
+        type: 'post',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(item),
+        success: function () {
+            ws.send(JSON.stringify(item));
+            if (type === 'message') {
                 $('#input').val('');
-            },
-            error: function (xhr, status, error) {
-                console.error('Error sending message:', xhr.responseText);
-            },
-        });
-    }
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error sending message:', xhr.responseText);
+        },
+    });
 }
 
 // Function to get all messages
@@ -109,9 +131,7 @@ $(document).ready(function () {
 
     ws.onmessage = function (event) {
         var item = JSON.parse(event.data);
-        if (item.chat_type == 'message') {
-            displayMessage(item);
-        }
+        displayMessage(item);
     };
 
     $('.container').scrollTop($('.container')[0].scrollHeight);
@@ -125,21 +145,56 @@ $(document).ready(function () {
     $('#input').keyup(function (event) {
         if (event.keyCode === 13 && !event.shiftKey) {
             event.preventDefault();
-            sendMessage();
+            var message = $('#input').val().trim();
+            if (message !== '') {
+                sendMessage('message', message);
+            }
         }
     });
 
     $('#message_btn').click(function () {
-        sendMessage();
+        var message = $('#input').val().trim();
+        if (message !== '') {
+            sendMessage('message', message);
+        }
     });
 
     $('.icon.back').click(function () {
         ws.close();
-        var prevUrl = document.referrer;
-        if (prevUrl.includes('/chatlist') || prevUrl === '') {
-            window.location = '/chatlist';
-        } else {
-            window.location = '/';
-        }
+        window.location = '/chatlist';
+    });
+
+    $('.icon.image').click(function () {
+        $('#image_input').click();
+    });
+
+    $('.icon.video').click(function () {
+        $('#video_input').click();
+    });
+
+    document
+        .getElementById('image_input')
+        .addEventListener('change', async function (event) {
+            var file = event.target.files[0];
+            var formData = new FormData();
+            formData.append('file', file);
+
+            console.log(formData);
+
+            try {
+                let response = await fetch('/upload/image/', {
+                    method: 'POST',
+                    body: formData,
+                });
+                let result = await response.json();
+
+                sendMessage('image', result.filename);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+    $('#video_input').change(function (event) {
+        // Handle video upload and send message with video URL
     });
 });
