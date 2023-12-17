@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <title>SKKU talk sign up</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', path='./css/signup_style.css') }}"
+        />
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{{ url_for('static', path='./js/signup_func.js') }}"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div id="title">Welcome to SKKU talk!</div>
+            <div class="text">
+                <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    placeholder="id (이름)"
+                />
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="password"
+                />
+            </div>
+            <div class="button">
+                <input type="button" id="btn_signup" value="Sign up" />
+                <input
+                    type="button"
+                    id="btn_login"
+                    value="Back to login window"
+                />
+            </div>
+        </div>
+    </body>
+</html>

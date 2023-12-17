@@ -1,0 +1,218 @@
+.big-container {
+    display: flex;
+    flex-direction: row;
+    margin: 20px;
+    width: 500px;
+    height: 900px;
+    border: 2px solid rgb(200, 200, 200);
+    border-radius: 5px;
+}
+
+.util {
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #ced4da;
+    width: 15%;
+}
+
+.icon {
+    cursor: pointer;
+    padding: 5px;
+    margin-bottom: 30px;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    transition: background-color 0.5s;
+}
+.icon.chat {
+    margin-bottom: 620px;
+}
+.icon.logout {
+    margin-bottom: 0px;
+}
+
+.icon:hover {
+    background-color: #f0f0f0;
+}
+.icon.groupchat:hover {
+    background-color: #ced4da;
+}
+.icon img {
+    width: 40px;
+    height: 40px;
+    border-radius: 20%;
+}
+
+.container {
+    flex: 1;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    width: 85%;
+    background-color: #f0f0f0;
+    overflow: auto;
+}
+
+.icon.groupchat {
+    height: 40px;
+    width: 40px;
+    margin-right: 10px;
+}
+
+#top-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    height: 55px;
+    border-bottom: 2px solid rgb(202, 202, 202);
+}
+#chat-list {
+    overflow: auto;
+}
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgb(145, 145, 145);
+    border: none;
+    border-radius: 3px;
+    min-height: 50px;
+}
+
+.chatroom-item {
+    padding: 15px 10px;
+    border-bottom: 1px solid #ccc;
+    transition: background-color 0.5s;
+    font-size: 20px;
+}
+.chatroom-item:hover {
+    background-color: #9b9b9b;
+}
+#recent_message {
+    font-size: 14px;
+    margin-left: 5px;
+    margin-top: 5px;
+    color: #606060;
+}
+
+/* 팝업창 디자인 */
+.popup {
+    display: none;
+    position: fixed;
+    top: 100px;
+    left: 140px;
+    z-index: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 300px;
+}
+
+.popup-content {
+    text-align: center;
+}
+
+.close-btn {
+    float: right;
+    font-size: 25px;
+    line-height: 25px;
+    cursor: pointer;
+}
+
+.popup h2 {
+    text-align: left;
+    margin-left: 60px;
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+#newChatRoomName {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.popup button {
+    background-color: #fef01b;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    /* text-transform: uppercase; */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+#friendCheckboxList {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.custom-checkbox {
+    display: inline-block;
+    position: relative;
+    padding-left: 30px;
+    margin: 0 50px;
+    cursor: pointer;
+    font-size: 15px;
+    user-select: none;
+    display: block;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.custom-checkbox .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 4px;
+}
+
+.custom-checkbox:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: #2196f3;
+}
+
+.custom-checkbox .checkmark:after {
+    content: '';
+    position: absolute;
+    display: none;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.custom-checkbox .checkmark:after {
+    left: 7px;
+    top: 4px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}

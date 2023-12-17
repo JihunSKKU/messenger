@@ -7,40 +7,10 @@
     height: 900px;
     align-items: flex-end;
 }
-.user-input,
+
 .kakaotalk {
     box-sizing: border-box;
     width: 100%;
-}
-
-/* 유저 로그인 container */
-.user-input {
-    margin: 0px 5px;
-    display: flex;
-    flex-direction: row;
-    height: 5%;
-    justify-content: center;
-}
-#username {
-    width: 80%;
-    margin: 5px;
-    padding-left: 5px;
-    font-size: 15px;
-    border-radius: 5px;
-}
-::placeholder {
-    text-align: center;
-    font-size: 20px;
-}
-#user_btn {
-    background-color: #fef01b;
-    width: 75px;
-    color: black;
-    font-size: 15px;
-    border: none;
-    border-radius: 5px;
-    margin: 5px;
-    cursor: pointer;
 }
 
 /* 카카오톡 container */
@@ -126,7 +96,37 @@
     resize: none;
 }
 
-/* 대화 입력 button */
+.button-group {
+    margin-right: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: #e1ffea;
+    border-radius: 10px;
+}
+
+.icon {
+    cursor: pointer;
+    padding: 5px;
+    margin-right: 20px;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    transition: background-color 0.5s;
+}
+
+.icon img {
+    height: 40px;
+    width: 40px;
+    border-radius: 20%;
+}
+
+.icon:hover {
+    background-color: #60ff68;
+}
+
 #message_btn {
     background-color: #fef01b;
     width: 75px;

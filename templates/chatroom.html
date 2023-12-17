@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SKKU talk</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', path='./css/chatroom_style.css') }}"
+        />
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            var user_id = '{{ user.user_id }}';
+            var username = '{{ user.username }}';
+            var room_id = '{{ chatroom.room_id }}';
+        </script>
+        <script src="{{ url_for('static', path='./js/chatroom_func.js') }}"></script>
+    </head>
+
+    <body>
+        <div class="big-container">
+            <div class="kakaotalk">
+                <div class="container"></div>
+                <textarea id="input"></textarea>
+                <input
+                    type="file"
+                    id="image_input"
+                    accept="image/*"
+                    style="display: none"
+                />
+                <input
+                    type="file"
+                    id="video_input"
+                    accept="video/*"
+                    style="display: none"
+                />
+            </div>
+            <div class="button-group">
+                <div class="icon back">
+                    <img
+                        src="{{ url_for('static', path='./icon/back_icon.png')}}"
+                        alt="Back"
+                    />
+                </div>
+                <div class="icon image">
+                    <img
+                        src="{{ url_for('static', path='./icon/image_icon.png') }}"
+                        alt="Image"
+                    />
+                </div>
+                <div class="icon video">
+                    <img
+                        src="{{ url_for('static', path='./icon/video_icon.png') }}"
+                        alt="Video"
+                    />
+                </div>
+                <button id="message_btn">전송</button>
+            </div>
+        </div>
+    </body>
+</html>

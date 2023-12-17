@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SKKU talk</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', path='./css/friend_style.css') }}"
+        />
+
+        <script>
+            var user_name = '{{ user_name }}';
+        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{{ url_for('static', path='./js/friend_func.js') }}"></script>
+    </head>
+
+    <body>
+        <div class="big-container">
+            <div class="util">
+                <div class="icon friend">
+                    <img
+                        src="{{ url_for('static', path='./icon/user_icon.png') }}"
+                        alt="User"
+                    />
+                </div>
+                <div class="icon chat">
+                    <img
+                        src="{{ url_for('static', path='./icon/chat_icon.png') }}"
+                        alt="Chat"
+                    />
+                </div>
+                <a href="/logout">
+                    <div class="icon logout">
+                        <img
+                            src="{{ url_for('static', path='./icon/logout.png') }}"
+                            alt="Logout"
+                        />
+                    </div>
+                </a>
+            </div>
+            <div class="container">
+                <div id="top-menu">
+                    <div class="icon addfriend">
+                        <img
+                            src="{{ url_for('static', path='./icon/add_friend.png') }}"
+                            alt="Add friend"
+                        />
+                    </div>
+                </div>
+                <div id="friend-list"></div>
+            </div>
+
+            <!-- 팝업창 -->
+            <div id="addFriendPopup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn" onclick="closeAddFriendPopup()"
+                        >&times;</span
+                    >
+                    <h2>친구 추가</h2>
+                    <input
+                        type="text"
+                        placeholder="친구의 이름을 입력하세요"
+                        id="newFriendName"
+                    />
+                    <button onclick="addFriend()">추가하기</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

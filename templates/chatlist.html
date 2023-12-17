@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SKKU talk</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', path='./css/chatlist_style.css') }}"
+        />
+
+        <script>
+            var user_name = '{{ user_name }}';
+        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="{{ url_for('static', path='./js/chatlist_func.js') }}"></script>
+    </head>
+
+    <body>
+        <div class="big-container">
+            <div class="util">
+                <div class="icon friend">
+                    <img
+                        src="{{ url_for('static', path='./icon/user_icon.png') }}"
+                        alt="User"
+                    />
+                </div>
+                <div class="icon chat">
+                    <img
+                        src="{{ url_for('static', path='./icon/chat_icon.png') }}"
+                        alt="Chat"
+                    />
+                </div>
+                <a href="/logout">
+                    <div class="icon logout">
+                        <img
+                            src="{{ url_for('static', path='./icon/logout.png') }}"
+                            alt="Logout"
+                        />
+                    </div>
+                </a>
+            </div>
+            <div class="container">
+                <div id="top-menu">
+                    <div class="icon groupchat">
+                        <img
+                            src="{{ url_for('static', path='./icon/group_chat.png') }}"
+                            alt="Group chatting"
+                        />
+                    </div>
+                </div>
+                <div id="chat-list"></div>
+            </div>
+
+            <!-- 그룹 채팅방 생성 팝업창 -->
+            <div id="groupChatPopup" class="popup">
+                <div class="popup-content">
+                    <span class="close-btn" onclick="closeGroupChatPopup()"
+                        >&times;</span
+                    >
+                    <h2>그룹 채팅방 생성</h2>
+                    <div id="friendCheckboxList"></div>
+                    <input
+                        type="text"
+                        id="newChatRoomName"
+                        placeholder="채팅방 이름 입력"
+                    />
+                    <button onclick="createGroupChat()">생성</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
