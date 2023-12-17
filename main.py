@@ -136,7 +136,7 @@ async def add_friend(friend_req: FriendRequestAdd,
 
     return db_add_friend(db, user.user_id, friend)
 
-
+"""ChatRoom part"""
 @app.post("/get-or-create-chatroom")
 async def get_or_create_chatroom(request: Request, 
                                  db: Session = Depends(get_db),
@@ -151,10 +151,28 @@ async def get_or_create_chatroom(request: Request,
     return {"chatroomId": chatroom.room_id}
 
 @app.get("/chatrooms", response_model=List[ChatRoomSchema])
-async def get_chatrooms(db: Session = Depends(get_db)):
-    chatrooms = db.query(ChatRoom).all()
-    return chatrooms
+async def get_chatrooms(db: Session = Depends(get_db),
+                        user: UserSchema = Depends(manager)):
+    return db_get_chatrooms(db, user)
 
+@app.get("/chatroom/{room_id}")
+async def get_friend(request: Request, 
+                     room_id: int,
+                     db: Session = Depends(get_db),
+                     user=Depends(manager)):
+    chatroom = db.query(ChatRoom).filter(ChatRoom.room_id == room_id).first()
+    if not chatroom:
+        raise HTTPException(status_code=404, detail="채팅방을 찾을 수 없습니다.")
+    
+    if not any(member.user_id == user.user_id for member in chatroom.users):
+        raise HTTPException(status_code=403, detail="접근 권한이 없습니다.")
+    
+    return templates.TemplateResponse("chatroom.html", {
+        "request": request, 
+        "user": user, 
+        "chatroom": chatroom
+    }) 
+    
 @app.get("/chatroom/{room_id}/chats", response_model=List[ChatRequest])
 async def get_chatroom_chats(room_id: int, db: Session = Depends(get_db)):
     return db_get_chats(db, room_id)
@@ -182,20 +200,6 @@ async def client(request: Request, user=Depends(manager)):
 @app.get("/login")
 async def get_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request}) 
-
-@app.get("/chatroom/{room_id}")
-async def get_friend(request: Request, 
-                     room_id: int,
-                     db: Session = Depends(get_db),
-                     user=Depends(manager)):
-    chatroom = db.query(ChatRoom).filter(ChatRoom.room_id == room_id).first()
-    if not chatroom:
-        raise HTTPException(status_code=404, detail="Chatroom을 찾을 수 없습니다.")
-    return templates.TemplateResponse("chatroom.html", {
-        "request": request, 
-        "user": user, 
-        "chatroom": chatroom
-    }) 
 
 @app.get("/logout")
 def logout(response: Response):

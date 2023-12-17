@@ -1,11 +1,32 @@
-function fetchFriends() {
-    $.get('/friends', function (data) {
-        var friendsHtml = data
-            .map(function (friend) {
-                return '<div class="friend-item">' + friend.username + '</div>';
+function fetchChatRooms() {
+    $.get('/chatrooms', function (chatrooms) {
+        var chatroomsHtml = chatrooms
+            .map(function (chatroom) {
+                var displayName =
+                    chatroom.room_name ||
+                    chatroom.users.find((u) => u.username !== user_name)
+                        .username;
+                var recent_message = chatroom.recent_message || 'No messages';
+                return (
+                    '<div class="chatroom-item" data-room_id="' +
+                    chatroom.room_id +
+                    '">' +
+                    '<div>' +
+                    displayName +
+                    '</div>' +
+                    '<div id="recent_message">' +
+                    recent_message +
+                    '</div>' +
+                    '</div>'
+                );
             })
             .join('');
-        $('#chat-list').html(friendsHtml);
+        $('#chat-list').html(chatroomsHtml);
+
+        $('.chatroom-item').click(function () {
+            var room_id = $(this).data('room_id');
+            window.location.href = '/chatroom/' + room_id;
+        });
     });
 }
 
@@ -41,13 +62,9 @@ function addFriend() {
 }
 
 $(document).ready(function () {
-    fetchFriends();
+    fetchChatRooms();
 
     $('.icon.friend').click(function () {
         window.location = '/';
     });
-
-    // $('.icon.groupchat').click(function () {
-    //     openAddFriendPopup();
-    // });
 });

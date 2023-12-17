@@ -32,7 +32,7 @@ function openAddFriendPopup() {
 }
 
 function closeAddFriendPopup() {
-    document.getElementById('addFriendPopup').val = '';
+    document.getElementById('newFriendName').value = '';
     document.getElementById('addFriendPopup').style.display = 'none';
 }
 
@@ -67,5 +67,12 @@ $(document).ready(function () {
 
     $('.icon.addfriend').click(function () {
         openAddFriendPopup();
+    });
+
+    $('#newFriendName').keyup(function (event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            addFriend();
+        }
     });
 });

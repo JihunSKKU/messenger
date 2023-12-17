@@ -21,6 +21,7 @@ class ChatRoomSchema(BaseModel):
     room_id: Optional[int]
     room_name: Optional[str]
     users: List[UserSchema]
+    recent_message: Optional[str]
     
     class Config:
         from_attributes = True
@@ -32,7 +33,7 @@ class ChatRequestBase(BaseModel):
     sender_name: Optional[str]
     chat_type: str
     content: str
-    time: str
+    time: datetime
 
 class ChatRequestAdd(ChatRequestBase):
     pass

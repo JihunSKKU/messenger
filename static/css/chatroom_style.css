@@ -96,7 +96,37 @@
     resize: none;
 }
 
-/* 대화 입력 button */
+.button-group {
+    margin-right: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: #e1ffea;
+    border-radius: 10px;
+}
+
+.icon {
+    cursor: pointer;
+    padding: 5px;
+    margin-right: 20px;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    transition: background-color 0.5s;
+}
+
+.icon img {
+    height: 40px;
+    width: 40px;
+    border-radius: 20%;
+}
+
+.icon:hover {
+    background-color: #60ff68;
+}
+
 #message_btn {
     background-color: #fef01b;
     width: 75px;

@@ -6,7 +6,10 @@ function displayMyMessage(message, time) {
         "<div class='chat-box'>" +
             "<div class='chat me'>" +
             "<div class='time me'>" +
-            time +
+            new Date(time).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+            }) +
             '</div>' +
             "<div class='message me'>" +
             message.replace(/\n/g, '<br>') +
@@ -15,7 +18,6 @@ function displayMyMessage(message, time) {
             '</div>'
     );
 
-    $('#input').val('');
     $('.container').append(myChat);
     $('.container').scrollTop($('.container')[0].scrollHeight);
 }
@@ -32,7 +34,10 @@ function displayOtherMessage(sender_name, message, time) {
             message.replace(/\n/g, '<br>') +
             '</div>' +
             "<div class='time you'>" +
-            time +
+            new Date(time).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+            }) +
             '</div>' +
             '</div>' +
             '</div>'
@@ -48,8 +53,6 @@ function displayMessage(item) {
     var message = item.content;
     var time = item.time;
 
-    console.log(item);
-
     if (sender_name == username) {
         displayMyMessage(message, time);
     } else {
@@ -61,10 +64,7 @@ function displayMessage(item) {
 function sendMessage() {
     var message = $('#input').val().trim();
     if (message !== '') {
-        var time = new Date().toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+        var time = new Date();
         var item = {
             chat_type: 'message',
             sender_id: user_id,
@@ -82,6 +82,7 @@ function sendMessage() {
             data: JSON.stringify(item),
             success: function () {
                 ws.send(JSON.stringify(item));
+                $('#input').val('');
             },
             error: function (xhr, status, error) {
                 console.error('Error sending message:', xhr.responseText);
@@ -130,5 +131,15 @@ $(document).ready(function () {
 
     $('#message_btn').click(function () {
         sendMessage();
+    });
+
+    $('.icon.back').click(function () {
+        ws.close();
+        var prevUrl = document.referrer;
+        if (prevUrl.includes('/chatlist') || prevUrl === '') {
+            window.location = '/chatlist';
+        } else {
+            window.location = '/';
+        }
     });
 });

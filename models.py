@@ -71,8 +71,8 @@ class ChatRoom(Base):
 """
 user_chatrooms = Table(
     'user_chatrooms', Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.user_id')),
-    Column('room_id', Integer, ForeignKey('chatrooms.room_id'))
+    Column('user_id', Integer, ForeignKey('users.user_id'), primary_key=True),
+    Column('room_id', Integer, ForeignKey('chatrooms.room_id'), primary_key=True)
 )
 
 """
@@ -97,7 +97,7 @@ class Chat(Base):
     sender_name = Column(String)
     chat_type = Column(String)
     content = Column(String)
-    time = Column(String)    
+    time = Column(DateTime)    
 
     sender = relationship('User', back_populates='chats')
     room = relationship('ChatRoom', back_populates='chats')

@@ -22,7 +22,27 @@
                 <div class="container"></div>
                 <textarea id="input"></textarea>
             </div>
-            <button id="message_btn">Send</button>
+            <div class="button-group">
+                <div class="icon back">
+                    <img
+                        src="{{ url_for('static', path='./icon/back_icon.png') }}"
+                        alt="Back"
+                    />
+                </div>
+                <div class="icon image">
+                    <img
+                        src="{{ url_for('static', path='./icon/image_icon.png') }}"
+                        alt="Image"
+                    />
+                </div>
+                <div class="icon video">
+                    <img
+                        src="{{ url_for('static', path='./icon/video_icon.png') }}"
+                        alt="Video"
+                    />
+                </div>
+                <button id="message_btn">전송</button>
+            </div>
         </div>
     </body>
 </html>
