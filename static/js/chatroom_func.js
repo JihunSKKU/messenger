@@ -200,7 +200,7 @@ $(document).ready(function () {
             formData.append('file', file);
 
             try {
-                let response = await fetch('/upload/image/', {
+                let response = await fetch('/upload/image', {
                     method: 'POST',
                     body: formData,
                 });
@@ -221,7 +221,7 @@ $(document).ready(function () {
             formData.append('file', file);
 
             try {
-                let response = await fetch('/upload/video/', {
+                let response = await fetch('/upload/video', {
                     method: 'POST',
                     body: formData,
                 });

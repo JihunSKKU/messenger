@@ -199,7 +199,7 @@ async def post_chatroom_chat(room_id: int, chat_req: ChatRequestAdd,
 
 
 """File upload part"""
-@app.post("/upload/image/")
+@app.post("/upload/image")
 async def upload_image(file: UploadFile = File(...)):
     allowed_extensions = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".svg"}
     ext = Path(file.filename).suffix
@@ -211,7 +211,7 @@ async def upload_image(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
     return {"filename": file_location}
 
-@app.post("/upload/video/")
+@app.post("/upload/video")
 async def upload_video(file: UploadFile = File(...)):
     allowed_extensions = {".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv"}
     ext = Path(file.filename).suffix

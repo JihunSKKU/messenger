@@ -25,7 +25,6 @@ def db_get_friend(db: Session, user_id: int):
     return [{"user_id": friend.user_id, 
              "username": friend.username} for friend in friends_list]
     
-
 def db_add_friend(db: Session, user_id: int, friend: User):    
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
@@ -47,16 +46,15 @@ def db_create_chatroom(db: Session, room_name: str, users: List[User]):
     return db_item
 
 def db_get_or_create_chatroom(db: Session, user_id: int, friend_id: int):
-    # 두 사용자의 개인 채팅방이 있는지 검사
-    subquery = db.query(ChatRoom.room_id) \
-                 .join(user_chatrooms) \
-                 .join(User) \
-                 .group_by(ChatRoom.room_id) \
-                 .having(func.count(User.user_id) == 2) \
-                 .subquery()
+    private_chatroom = db.query(ChatRoom.room_id) \
+                        .join(user_chatrooms) \
+                        .join(User) \
+                        .group_by(ChatRoom.room_id) \
+                        .having(func.count(User.user_id) == 2) \
+                        .subquery()
 
     chatroom = db.query(ChatRoom) \
-                 .join(subquery, ChatRoom.room_id == subquery.c.room_id) \
+                 .join(private_chatroom, ChatRoom.room_id == private_chatroom.c.room_id) \
                  .filter(ChatRoom.users.any(User.user_id == user_id)) \
                  .filter(ChatRoom.users.any(User.user_id == friend_id)) \
                  .first()
@@ -76,13 +74,16 @@ def db_get_chatrooms(db:Session, user: UserSchema):
 
     chatrooms_with_chat = db.query(ChatRoom, Chat) \
         .outerjoin(subquery, ChatRoom.room_id == subquery.c.room_id) \
-        .outerjoin(Chat, and_(Chat.room_id == subquery.c.room_id, Chat.time == subquery.c.max_time)) \
-        .filter(ChatRoom.users.any(User.user_id == user.user_id), subquery.c.max_time != None) \
+        .outerjoin(Chat, and_(Chat.room_id == subquery.c.room_id, 
+                              Chat.time == subquery.c.max_time)) \
+        .filter(ChatRoom.users.any(User.user_id == user.user_id), 
+                subquery.c.max_time != None) \
         .order_by(subquery.c.max_time.desc()) \
         .all()
 
     chatrooms_without_chat = db.query(ChatRoom) \
-        .filter(ChatRoom.users.any(User.user_id == user.user_id), ~ChatRoom.room_id.in_(db.query(subquery.c.room_id))) \
+        .filter(ChatRoom.users.any( User.user_id == user.user_id), 
+                ~ChatRoom.room_id.in_(db.query(subquery.c.room_id))) \
         .order_by(ChatRoom.room_id.desc()) \
         .all()
 
