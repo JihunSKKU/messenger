@@ -1,4 +1,4 @@
-from sqlalchemy import func, and_, case
+from sqlalchemy import func, and_
 from sqlalchemy.orm import Session
 
 from fastapi import HTTPException
@@ -14,6 +14,18 @@ def db_register_user(db: Session, username: str, password: str):
     db.refresh(db_item)
     return db_item
 
+
+"""Friend part"""
+def db_get_friend(db: Session, user_id: int):
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        return HTTPException(status_code=400, detail="세션이 만료되었습니다. 새로고침 해주세요.")
+    friends_list = sorted(user.friends, key=lambda friend: friend.username)
+                
+    return [{"user_id": friend.user_id, 
+             "username": friend.username} for friend in friends_list]
+    
+
 def db_add_friend(db: Session, user_id: int, friend: User):    
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
@@ -25,7 +37,15 @@ def db_add_friend(db: Session, user_id: int, friend: User):
     else:
         raise HTTPException(status_code=400, detail="해당 유저는 이미 친구입니다.")
 
+
 """ChatRoom part"""
+def db_create_chatroom(db: Session, room_name: str, users: List[User]):
+    db_item = ChatRoom(room_name=room_name, users=users)     
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
 def db_get_or_create_chatroom(db: Session, user_id: int, friend_id: int):
     # 두 사용자의 개인 채팅방이 있는지 검사
     subquery = db.query(ChatRoom.room_id) \
@@ -48,20 +68,12 @@ def db_get_or_create_chatroom(db: Session, user_id: int, friend_id: int):
 
     return chatroom
 
-def db_create_chatroom(db: Session, room_name: str, users: List[User]):
-    db_item = ChatRoom(room_name=room_name, users=users)     
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
 def db_get_chatrooms(db:Session, user: UserSchema):
     subquery = db.query(
         Chat.room_id.label('room_id'),
         func.max(Chat.time).label('max_time')
     ).group_by(Chat.room_id).subquery()
 
-    # 채팅이 있는 채팅방
     chatrooms_with_chat = db.query(ChatRoom, Chat) \
         .outerjoin(subquery, ChatRoom.room_id == subquery.c.room_id) \
         .outerjoin(Chat, and_(Chat.room_id == subquery.c.room_id, Chat.time == subquery.c.max_time)) \
@@ -69,13 +81,11 @@ def db_get_chatrooms(db:Session, user: UserSchema):
         .order_by(subquery.c.max_time.desc()) \
         .all()
 
-    # 채팅이 없는 채팅방
     chatrooms_without_chat = db.query(ChatRoom) \
         .filter(ChatRoom.users.any(User.user_id == user.user_id), ~ChatRoom.room_id.in_(db.query(subquery.c.room_id))) \
         .order_by(ChatRoom.room_id.desc()) \
         .all()
 
-    # 결과 합치기
     result = []
     for chatroom, chat in chatrooms_with_chat:
         result.append({
@@ -94,6 +104,7 @@ def db_get_chatrooms(db:Session, user: UserSchema):
         })
 
     return result
+
 
 """Chat part"""
 def db_get_chats(db: Session, room_id: int):

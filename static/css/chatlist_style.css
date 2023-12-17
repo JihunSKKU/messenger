@@ -37,7 +37,7 @@
 .icon:hover {
     background-color: #f0f0f0;
 }
-.icon.addfriend:hover {
+.icon.groupchat:hover {
     background-color: #ced4da;
 }
 .icon img {
@@ -126,12 +126,12 @@
 
 .popup h2 {
     text-align: left;
-    margin-left: 100px;
+    margin-left: 60px;
     color: #333;
     font-family: Arial, sans-serif;
 }
 
-#newFriendName {
+#newChatRoomName {
     width: 80%;
     padding: 10px;
     margin-bottom: 20px;
@@ -146,8 +146,73 @@
     color: black;
     border: none;
     padding: 10px 20px;
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
+}
+
+#friendCheckboxList {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.custom-checkbox {
+    display: inline-block;
+    position: relative;
+    padding-left: 30px;
+    margin: 0 50px;
+    cursor: pointer;
+    font-size: 15px;
+    user-select: none;
+    display: block;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.custom-checkbox .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 4px;
+}
+
+.custom-checkbox:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: #2196f3;
+}
+
+.custom-checkbox .checkmark:after {
+    content: '';
+    position: absolute;
+    display: none;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.custom-checkbox .checkmark:after {
+    left: 7px;
+    top: 4px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
 }

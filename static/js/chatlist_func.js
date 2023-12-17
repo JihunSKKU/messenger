@@ -1,3 +1,8 @@
+/*
+ * 서버에서 채팅방 목록을 불러와 화면에 표시하는 함수
+ * - 사용자의 이름 또는 그룹 채팅방의 이름을 보여준다.
+ * - 채팅방 이름 아래에 최근 메시지를 보여준다. 없는 경우 No messages를 띄워준다.
+ */
 function fetchChatRooms() {
     $.get('/chatrooms', function (chatrooms) {
         var chatroomsHtml = chatrooms
@@ -30,35 +35,73 @@ function fetchChatRooms() {
     });
 }
 
-function openAddFriendPopup() {
-    document.getElementById('addFriendPopup').style.display = 'block';
+/*
+ * 그룹 채팅방 생성 팝업을 여는 함수
+ * - 서버에서 현재 사용자의 친구 목록을 불러와서 checkbox로 표시한다.
+ */
+function openGroupChatPopup() {
+    document.getElementById('groupChatPopup').style.display = 'block';
+    $.get('/friends', function (friends) {
+        var checkboxesHtml = friends
+            .map(function (friend) {
+                return (
+                    '<label class="custom-checkbox">' +
+                    '<input type="checkbox" name="selectedFriends" value="' +
+                    friend.username +
+                    '">' +
+                    '<span class="checkmark"></span>' +
+                    friend.username +
+                    '</label><br>'
+                );
+            })
+            .join('');
+        $('#friendCheckboxList').html(checkboxesHtml);
+    });
 }
 
-function closeAddFriendPopup() {
-    document.getElementById('addFriendPopup').val = '';
-    document.getElementById('addFriendPopup').style.display = 'none';
+/*
+ * 그룹 채팅방 생성 팝업을 닫는 함수
+ */
+function closeGroupChatPopup() {
+    document.getElementById('newChatRoomName').value = '';
+    document.getElementById('groupChatPopup').style.display = 'none';
 }
 
-function addFriend() {
-    var friendName = document.getElementById('newFriendName').value;
-    if (friendName) {
+/*
+ * 그룹 채팅방을 생성하는 함수
+ * - checkbox에서 선택한 유저들이 그룹 채팅방의 user가 됩니다. (2명 이상 선택)
+ * - 입력한 채팅방 이름이 Chat List에 뜹니다.
+ */
+function createGroupChat() {
+    var selectedFriends = $('input[name="selectedFriends"]:checked')
+        .map(function () {
+            return this.value;
+        })
+        .get();
+    var chatRoomName = $('#newChatRoomName').val().trim();
+    if (selectedFriends.length <= 1) {
+        alert('친구 2명 이상을 선택해주세요.');
+    } else if (!chatRoomName) {
+        alert('채팅방 이름을 작성해주세요.');
+    } else {
         $.ajax({
-            url: '/add-friend',
+            url: '/create-group-chat',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ username: friendName }),
-            success: function (data) {
-                alert('친구가 추가되었습니다!');
-                fetchFriends();
+            data: JSON.stringify({
+                roomName: chatRoomName,
+                friends: selectedFriends,
+            }),
+            success: function () {
+                alert('그룹 채팅방이 생성되었습니다!');
+                fetchChatRooms();
             },
             error: function (response) {
-                alert(response.responseJSON.detail);
+                alert('채팅방 생성에 실패했습니다.');
             },
         });
-    } else {
-        alert('친구 이름을 입력해주세요.');
+        closeGroupChatPopup();
     }
-    closeAddFriendPopup();
 }
 
 $(document).ready(function () {
@@ -67,8 +110,19 @@ $(document).ready(function () {
     $('.icon.friend').click(function () {
         window.location = '/';
     });
-    
+
     $('.icon.chat').click(function () {
         window.location = '/chatlist';
+    });
+
+    $('.icon.groupchat').click(function () {
+        openGroupChatPopup();
+    });
+
+    $('#newChatRoomName').keyup(function (event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            createGroupChat();
+        }
     });
 });

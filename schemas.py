@@ -1,4 +1,3 @@
-import json
 from fastapi import WebSocket
 from pydantic import BaseModel
 from typing import Optional, List

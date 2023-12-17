@@ -46,6 +46,7 @@ function addFriend() {
             data: JSON.stringify({ username: friendName }),
             success: function (data) {
                 alert('친구가 추가되었습니다!');
+                closeAddFriendPopup();
                 fetchFriends();
             },
             error: function (response) {
@@ -55,7 +56,6 @@ function addFriend() {
     } else {
         alert('친구 이름을 입력해주세요.');
     }
-    closeAddFriendPopup();
 }
 
 $(document).ready(function () {

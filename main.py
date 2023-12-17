@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, WebSocket, Request, Response, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -19,9 +19,8 @@ from datetime import datetime, timedelta, timezone
 
 from models import Base, User, Chat, ChatRoom
 from schemas import UserSchema, ChatRoomSchema, ChatRequest, ChatRequestAdd, ConnectionManager, FriendRequestAdd
-from crud import db_register_user, db_add_friend, db_create_chatroom, db_get_chatrooms, db_get_chats, db_add_chat, db_get_or_create_chatroom
+from crud import db_register_user, db_get_friend, db_add_friend, db_get_chatrooms, db_get_chats, db_add_chat, db_get_or_create_chatroom
 from database import SessionLocal, engine
-
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -35,6 +34,7 @@ def get_db():
         yield db
     finally:
         db.close()
+   
         
 """Websocket part"""
 websocket_manager = ConnectionManager()
@@ -51,6 +51,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: int):
         pass
     finally:
         await websocket_manager.disconnect(websocket, room_id)
+    
                
 """User part"""
 class NotAuthenticatedException(Exception):
@@ -108,30 +109,11 @@ def register_user(response: Response,
     else:
         return "Failed"
 
+
 """Add friend part"""
 @app.get("/friends")
 async def get_friends(db: Session = Depends(get_db), user: UserSchema = Depends(manager)):
-    try:
-        current_user = db.query(User).filter(User.username == user.username).first()
-        if not current_user:
-            raise InvalidCredentialsException
-        
-        # friends_list = []
-        # for friend in current_user.friends:
-        #     friend_info = {
-        #         "user_id": friend.user_id,
-        #         "username": friend.username
-        #     }
-        #     friends_list.append(friend_info)
-
-        # return friends_list
-    
-        friends_list = sorted(current_user.friends, key=lambda friend: friend.username)
-                
-        return [{"user_id": friend.user_id, 
-                 "username": friend.username} for friend in friends_list]
-    except Exception as e:
-        raise InvalidCredentialsException
+    return db_get_friend(db, user.user_id)
 
 @app.post("/add-friend")
 async def add_friend(friend_req: FriendRequestAdd, 
@@ -144,6 +126,7 @@ async def add_friend(friend_req: FriendRequestAdd,
         raise HTTPException(status_code=400, detail="본인은 친구로 추가할 수 없습니다.")
 
     return db_add_friend(db, user.user_id, friend)
+
 
 """ChatRoom part"""
 @app.post("/get-or-create-chatroom")
@@ -158,6 +141,21 @@ async def get_or_create_chatroom(request: Request,
 
     chatroom = db_get_or_create_chatroom(db, user.user_id, friend.user_id)
     return {"chatroomId": chatroom.room_id}
+
+@app.post("/create-group-chat")
+async def create_group_chat(request: Request, db: Session = Depends(get_db), user: UserSchema = Depends(manager)):
+    data = await request.json()
+    room_name = data['roomName']
+    friend_usernames = data['friends']
+
+    users = db.query(User).filter(User.username.in_(friend_usernames + [user.username])).all()
+
+    new_chatroom = ChatRoom(room_name=room_name, users=users)
+    db.add(new_chatroom)
+    db.commit()
+    db.refresh(new_chatroom)
+
+    return {"message": "Group chat room created successfully", "room_id": new_chatroom.room_id}
 
 @app.get("/chatrooms", response_model=List[ChatRoomSchema])
 async def get_chatrooms(db: Session = Depends(get_db),
@@ -181,7 +179,9 @@ async def get_friend(request: Request,
         "user": user, 
         "chatroom": chatroom
     }) 
+   
     
+"""Chat part"""
 @app.get("/chatroom/{room_id}/chats", response_model=List[ChatRequest])
 async def get_chatroom_chats(room_id: int, db: Session = Depends(get_db)):
     return db_get_chats(db, room_id)
@@ -197,30 +197,6 @@ async def post_chatroom_chat(room_id: int, chat_req: ChatRequestAdd,
         return None
     return db_get_chats(db, room_id)
 
-
-"""Website part"""
-@app.get("/")
-async def client(request: Request, user=Depends(manager)):
-    return templates.TemplateResponse("friend.html", {"request": request, "user_name": user.username})
-
-@app.get("/chatlist")
-async def client(request: Request, user=Depends(manager)):
-    return templates.TemplateResponse("chatlist.html", {"request": request, "user_name": user.username})
-
-
-@app.get("/login")
-async def get_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request}) 
-
-@app.get("/logout")
-def logout(response: Response):
-    response = RedirectResponse("/login", status_code=302)
-    response.delete_cookie(key="access-token")
-    return response
-
-@app.get("/signup")
-async def get_signup(request: Request):
-    return templates.TemplateResponse("signup.html", {"request": request}) 
 
 """File upload part"""
 @app.post("/upload/image/")
@@ -246,6 +222,31 @@ async def upload_video(file: UploadFile = File(...)):
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     return {"filename": file_location}
+
+
+"""Website part"""
+@app.get("/")
+async def client(request: Request, user=Depends(manager)):
+    return templates.TemplateResponse("friend.html", {"request": request, "user_name": user.username})
+
+@app.get("/chatlist")
+async def client(request: Request, user=Depends(manager)):
+    return templates.TemplateResponse("chatlist.html", {"request": request, "user_name": user.username})
+
+
+@app.get("/login")
+async def get_login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request}) 
+
+@app.get("/logout")
+def logout(response: Response):
+    response = RedirectResponse("/login", status_code=302)
+    response.delete_cookie(key="access-token")
+    return response
+
+@app.get("/signup")
+async def get_signup(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request}) 
 
 
 if __name__ == "__main__":

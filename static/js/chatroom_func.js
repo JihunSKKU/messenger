@@ -191,6 +191,7 @@ $(document).ready(function () {
         $('#video_input').click();
     });
 
+    // user가 선택한 이미지를 서버로 업로드하고 메시지를 보낸다.
     document
         .getElementById('image_input')
         .addEventListener('change', async function (event) {
@@ -211,6 +212,7 @@ $(document).ready(function () {
             }
         });
 
+    // user가 선택한 동영상을 서버로 업로드하고 메시지를 보낸다.
     document
         .getElementById('video_input')
         .addEventListener('change', async function (event) {
